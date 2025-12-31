@@ -4,7 +4,7 @@ from datetime import datetime
 
 # --- 基本パーツ ---
 
-class UserGroupBase(BaseModel):
+class GroupMemberBase(BaseModel):
     is_representative: bool
     accepted: bool
 
@@ -66,7 +66,7 @@ class GroupResponse(BaseModel):
     updated_at: Optional[datetime] = None
 
     # 自分自身の状態（フロントエンドでの表示制御に便利）
-    my_status: Optional[UserGroupBase] = None
+    my_status: Optional[GroupMemberBase] = None
 
     class Config:
         from_attributes = True

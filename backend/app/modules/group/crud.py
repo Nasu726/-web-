@@ -11,8 +11,8 @@ def get_group_by_id(db: Session, group_id: str):
 
 def get_user_group(db: Session, user_id: str, group_id: str):
     """特定のユーザーとグループの結びつき(メンバー情報)を取得"""
-    return db.query(models.UserGroup).filter(
-        and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)
+    return db.query(models.GroupMember).filter(
+        and_(models.GroupMember.user_id == user_id, models.GroupMember.group_id == group_id)
     ).first()
 
 # --- 作成・加入系 ---
@@ -67,7 +67,7 @@ def create_group(db: Session, group_in: schemas.GroupCreate, creator_user_id: st
     db.flush() # ID生成のためflush
 
     # 2. 作成者を管理者として登録 (承認済み)
-    db_member = models.UserGroup(
+    db_member = models.GroupMember(
         group_id=db_group.group_id,
         user_id=creator_user_id,
         is_representative=True, # 管理者
@@ -110,7 +110,7 @@ def join_group(db: Session, join_in: schemas.GroupJoin, user_id: str):
             raise HTTPException(status_code=400, detail="既に加入申請中です。承認をお待ちください。")
 
     # 4. 申請データの作成 (accepted=False, is_representative=False)
-    new_member = models.UserGroup(
+    new_member = models.GroupMember(
         group_id=join_in.group_id,
         user_id=user_id,
         is_representative=False,

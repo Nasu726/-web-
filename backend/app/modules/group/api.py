@@ -100,19 +100,19 @@ def get_group_members(
     # check_group_member_permission(current_user, group_id, db) 
 
     # 2. クエリ作成
-    query = db.query(models.UserGroup, user_models.User).join(
+    query = db.query(models.GroupMember, user_models.User).join(
         user_models.User, 
-        models.UserGroup.user_id == user_models.User.user_id # IDで結合
+        models.GroupMember.user_id == user_models.User.user_id # IDで結合
     ).filter(
-        models.UserGroup.group_id == group_id
+        models.GroupMember.group_id == group_id
     )
 
     # 3. フィルタリング (正式メンバーか、申請中か)
     if accepted_only:
-        query = query.filter(models.UserGroup.accepted == True)
+        query = query.filter(models.GroupMember.accepted == True)
     else:
         check_group_admin_permission(current_user, group_id, db) 
-        query = query.filter(models.UserGroup.accepted == False)
+        query = query.filter(models.GroupMember.accepted == False)
 
     results = query.all()
 

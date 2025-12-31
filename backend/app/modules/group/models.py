@@ -24,11 +24,11 @@ class Group(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # リレーション: 中間テーブル(UserGroup)を通じてUserと関連付け
-    user_groups = relationship("UserGroup", back_populates="group", cascade="all, delete-orphan")
+    # リレーション: 中間テーブル(GroupMember)を通じてUserと関連付け
+    user_groups = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
 
 
-class UserGroup(Base):
+class GroupMember(Base):
     """
     ユーザーとグループの中間テーブル
     - 誰が(user_id)
@@ -51,7 +51,7 @@ class UserGroup(Base):
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # リレーション設定
-    # Userモデル側にも `groups = relationship("UserGroup", back_populates="user")` がある想定
+    # Userモデル側にも `groups = relationship("GroupMember", back_populates="user")` がある想定
     user = relationship("app.modules.user.models.User", back_populates="groups")
     group = relationship("Group", back_populates="user_groups")
 
