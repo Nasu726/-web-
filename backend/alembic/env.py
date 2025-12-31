@@ -3,50 +3,39 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 import os
 import sys
-# 【重要】パスを通す
+
+# パスを通す
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from alembic import context
-from app.core.database import Base # Baseをインポート
-from app.modules.user.models import User # 【重要】モデルをインポートしてBaseに認識させる
+from app.core.database import Base
+from app.modules.user import models as user_models
+from app.modules.group import models as group_models
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-# ログ設定
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-# マイグレーション対象のメタデータを指定(変更対象のデータ指定)
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 def get_url():
-    # 環境変数からDB URLを取得 (docker-composeの環境変数を利用)
-    return os.getenv("DATABASE_URL")
+    # 1. まず DATABASE_URL 環境変数があるか確認
+    url = os.getenv("DATABASE_URL")
+    if url:
+        return url
+    
+    # 2. なければ、個別の環境変数からMySQL接続文字列を組み立てる
+    # (docker-compose.yml で指定した変数名に合わせる)
+    user = os.getenv("MYSQL_USER", "myuser")
+    password = os.getenv("MYSQL_PASSWORD", "mypassword")
+    host = os.getenv("DB_HOST", "db")  # サービス名の "db"
+    port = os.getenv("DB_PORT", "3306")
+    db_name = os.getenv("MYSQL_DATABASE", "myapp_db")
+
+    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{db_name}"
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
     url = get_url()
     context.configure(
         url=url,
@@ -58,18 +47,15 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    configuration = config.get_section(config.config_ini_section)
+    # get_section が None を返す可能性を考慮して空辞書をデフォルトにする
+    configuration = config.get_section(config.config_ini_section, {})
+    
+    # ここで確実にURLを上書きする
     configuration["sqlalchemy.url"] = get_url()
+
     connectable = engine_from_config(
-        configuration, 
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
@@ -81,7 +67,6 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()
