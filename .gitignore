@@ -5,6 +5,10 @@
 
 # Additional files
 venv_sql
+.mergecode.py
+project_context.txt
+tmp.txt
+.dockerignore
 
 # User-specific files
 *.rsuser
