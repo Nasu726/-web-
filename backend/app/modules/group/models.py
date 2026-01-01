@@ -25,10 +25,14 @@ class Group(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # リレーション: 中間テーブル(GroupMember)を通じてUserと関連付け
-    user_groups = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
+    group_members = relationship(
+        "GroupMember", 
+        back_populates="groups", 
+        cascade="all, delete-orphan"
+    )
     tasks = relationship(
         "app.modules.task.models.Task", 
-        back_populates="group", 
+        back_populates="groups", 
         cascade="all, delete-orphan" # グループ削除時にタスクも全消去
     )
 
@@ -56,10 +60,16 @@ class GroupMember(Base):
 
     # リレーション設定
     # Userモデル側にも `groups = relationship("GroupMember", back_populates="user")` がある想定
-    user = relationship("app.modules.user.models.User", back_populates="groups")
-    group = relationship("Group", back_populates="user_groups")
+    users = relationship(
+        "app.modules.user.models.User", 
+        back_populates="group_members"
+    )
+    groups = relationship(
+        "Group", 
+        back_populates="group_members"
+    )
 
-    # 修正: user_idとgroup_idの組み合わせはユニークである必要がある
+    # user_idとgroup_idの組み合わせはユニークである必要がある
     __table_args__ = (
         UniqueConstraint('user_id', 'group_id', name='unique_user_group_membership'),
     )

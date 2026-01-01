@@ -49,9 +49,15 @@ class User(Base):
     # 重要: ここで `from app.modules.group.models import GroupMember` と書いてimportすると、
     # 向こうもUserをimportしているため「循環参照エラー」になります。
     # これを防ぐため、"app.modules.group.models.GroupMember" という「文字列」で指定します。
-    groups = relationship(
+    group_members = relationship(
         "app.modules.group.models.GroupMember", 
-        back_populates="user", 
+        back_populates="users", 
         # ユーザーが削除されたら、紐付いている group_members も一緒に破棄する設定
+        cascade="all, delete-orphan" # <--- これが重要
+    )
+    task_user_relations = relationship(
+        "app.modules.task.models.TaskUser_Relation", 
+        back_populates="users", 
+        # ユーザーが削除されたら、紐付いている task_user_relations も一緒に破棄する設定
         cascade="all, delete-orphan" # <--- これが重要
     )
