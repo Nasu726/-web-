@@ -233,14 +233,47 @@ def leave_or_remove_member(
 
     target_user_id = target_user.user_id
 
-    # 1. 脱退 (自分自身を削除)
-    if current_user.user_id == target_user_id:
-        pass
-    else:
-        # 2. 除名 (他者を削除)
+    # 1. 自分以外を消す場合は管理者権限が必要
+    if current_user.user_id != target_user_id:
         # 操作者が管理者であるかチェック
         check_group_admin_permission(current_user, group_id, db)
-    
+
+    # 2. 脱退
     crud.remove_member(db, group_id, target_user_id)
 
+    # 3. 残りのメンバー数を数える
+    remaining_count = crud.count_members(db, group_id)
+
+    # 4. 誰もいなくなったら (1人なら) グループを削除(解散)
+    if remaining_count == 0:
+        group = crud.get_group(db, group_id)
+        if group:
+            # delete_groupを呼べば、TaskなどもCascade設定で全部消えます
+            crud.delete_group(db, group)
+            print(f"Group {group_id} has been automatically deleted.")
+
     return
+
+@router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_group_api(
+    group_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    【グループ解散】
+    グループを削除します。
+    実行できるのはグループの管理者（is_representative=True）のみです。
+    タスク、メンバー、リアクションなど関連データは全て削除されます。
+    """
+    # 1. グループが存在するか確認
+    group = crud.get_group(db, group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="グループが見つかりません")
+
+    # 2. 権限チェック
+    check_group_admin_permission(current_user, group_id, db)
+    # 3. 削除実行
+    crud.delete_group(db, group)
+    
+    return # 204 No Content
