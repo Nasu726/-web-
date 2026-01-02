@@ -1,6 +1,8 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import or_, desc
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
+from datetime import datetime
 
 from . import models, schemas
 
@@ -16,10 +18,70 @@ def create_task(db: Session, task_in: schemas.TaskCreate, group_id: str):
     db.refresh(db_task)
     return db_task
 
-def get_tasks_by_group(db: Session, group_id: str, limit: int = 30):
-    return db.query(models.Task)\
-        .filter(models.Task.group_id == group_id)\
-        .order_by(models.Task.date.asc())\
+# --- ★大幅修正: 高度な検索機能 ---
+def get_tasks_by_group_advanced(
+    db: Session, 
+    group_id: str, 
+    user_id: str,
+    skip: int,
+    limit: int,
+    from_date_str: Optional[str],
+    to_date_str: Optional[str],
+    filter_type: Optional[str]
+):
+    # ベースのクエリ: 指定グループのタスク
+    query = db.query(models.Task).filter(models.Task.group_id == group_id)
+
+    # 1. 日付範囲フィルタ
+    if from_date_str:
+        try:
+            from_dt = datetime.strptime(from_date_str, "%Y-%m-%d")
+            query = query.filter(models.Task.date >= from_dt)
+        except ValueError:
+            pass # 形式エラーは無視またはエラーハンドリング
+    if to_date_str:
+        try:
+            to_dt = datetime.strptime(to_date_str, "%Y-%m-%d")
+            # 指定日の23:59:59までを含めるため、日付+時間を調整するか、
+            # 単純な日付比較ならDBの型によるが、ここでは単純比較と仮定
+            query = query.filter(models.Task.date <= to_dt)
+        except ValueError:
+            pass
+
+    # 2. 特殊フィルタ (filter_type)
+    # JOINが必要になるケースがあるため、ここで分岐
+    if filter_type == "my_related":
+        # 「自分に関連」: 担当(is_assigned=True) OR 参加(reaction='join')
+        # TaskUser_Relation を結合して絞り込む
+        query = query.join(models.TaskUser_Relation)\
+            .filter(models.TaskUser_Relation.user_id == user_id)\
+            .filter(
+                or_(
+                    models.TaskUser_Relation.is_assigned == True,
+                    models.TaskUser_Relation.reaction == "join"
+                )
+            )
+    
+    elif filter_type == "undecided":
+        # 「参加未定」: reaction='undecided'
+        query = query.join(models.TaskUser_Relation)\
+            .filter(models.TaskUser_Relation.user_id == user_id)\
+            .filter(models.TaskUser_Relation.reaction == "undecided")
+            
+    elif filter_type == "recent_created":
+        # 「最近作成された順」: created_at 降順
+        # 並び替え処理のみここで適用して、後のデフォルト並び替えを回避するフラグを立てても良いが
+        # ここではクエリの order_by を上書きする形になる
+        query = query.order_by(desc(models.Task.created_at))
+    
+    # 3. 並び替え (filter_typeで指定がなければ日付順)
+    if filter_type != "recent_created":
+        query = query.order_by(models.Task.date.asc())
+
+    # 4. N+1問題対策 & ページネーション
+    return query\
+        .options(joinedload(models.Task.task_user_relations))\
+        .offset(skip)\
         .limit(limit)\
         .all()
 
