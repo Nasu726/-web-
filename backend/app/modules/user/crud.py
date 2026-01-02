@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash # パスワードハッシュ化用の関数
+from app.modules.group import models as group_models
 from . import models, schemas
 
 def get_user_by_email(db: Session, email: str):
@@ -47,3 +48,37 @@ def delete_user(db: Session, user_id: str):
         db.commit()         # 確定
         return True
     return False
+
+# --- ★以下を追加: 所属グループ取得関数 ---
+def get_user_joined_groups(db: Session, user_id: str):
+    """
+    ユーザーが所属している（または招待されている）グループ一覧を取得する。
+    GroupMemberテーブルとGroupテーブルを結合して、グループ名まで取得する。
+    """
+    # SQLイメージ:
+    # SELECT member.*, group.name 
+    # FROM group_members AS member
+    # JOIN groups AS group ON member.group_id = group.group_id
+    # WHERE member.user_id = :user_id
+    
+    results = db.query(
+        group_models.GroupMember,
+        group_models.Group.group_name
+    ).join(
+        group_models.Group,
+        group_models.GroupMember.group_id == group_models.Group.group_id
+    ).filter(
+        group_models.GroupMember.user_id == user_id
+    ).all()
+
+    # Pydanticスキーマ(UserGroupDetail)に合わせて辞書リストを作成
+    group_list = []
+    for member, group_name in results:
+        group_list.append({
+            "group_id": member.group_id,
+            "group_name": group_name,
+            "is_representative": member.is_representative,
+            "accepted": member.accepted
+        })
+    
+    return group_list

@@ -111,6 +111,17 @@ def read_users_me(current_user: user_models.User = Depends(get_current_user)):
     """ログイン中の自分の情報を取得"""
     return current_user
 
+# --- ★以下を追加: 所属グループ一覧取得API ---
+@router.get("/me/groups", response_model=List[schemas.UserGroupDetail])
+def read_my_groups(
+    current_user: user_models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    ログイン中のユーザーが所属している（または招待されている）グループ一覧を取得します。
+    """
+    return crud.get_user_joined_groups(db, user_id=current_user.user_id)
+
 # 将来的に、アカウントの凍結を実装するときに必要
 # @router.put("/{user_id}/freeze")
 # def freeze_user(

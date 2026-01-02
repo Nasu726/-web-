@@ -42,3 +42,13 @@ class UserResponse(UserBase):
     class Config:
         # SQLAlchemyのモデル（DBデータ）を、そのままこのPydanticモデルに変換可能にする設定
         from_attributes = True
+
+# --- ★以下を追加: 所属グループ一覧表示用スキーマ ---
+class UserGroupDetail(BaseModel):
+    group_id: str
+    group_name: str
+    is_representative: bool # 自分が管理者(代表)かどうか
+    accepted: bool          # 参加承認済みかどうか
+
+    class Config:
+        from_attributes = True
