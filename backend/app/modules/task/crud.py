@@ -16,7 +16,7 @@ def create_task(db: Session, task_in: schemas.TaskCreate, group_id: str):
     db.refresh(db_task)
     return db_task
 
-def get_tasks_by_group(db: Session, group_id: str, limit: int = 100):
+def get_tasks_by_group(db: Session, group_id: str, limit: int = 30):
     return db.query(models.Task)\
         .filter(models.Task.group_id == group_id)\
         .order_by(models.Task.date.asc())\
