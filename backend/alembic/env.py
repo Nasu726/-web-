@@ -10,9 +10,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base
-from app.modules.user import models as user_models
-from app.modules.group import models as group_models
-from app.modules.task import models as task_models
+from app.modules.user import models as user_models   # noqa: F401
+from app.modules.group import models as group_models # noqa: F401
+from app.modules.task import models as task_models   # noqa: F401
 
 config = context.config
 
