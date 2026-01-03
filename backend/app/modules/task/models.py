@@ -55,8 +55,8 @@ class TaskUser_Relation(Base):
     __tablename__ = "task_user_relations"
     
     relation_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
-    task_id = Column(String(36), ForeignKey("tasks.task_id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    task_id = Column(String(36), ForeignKey("tasks.task_id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
 
     is_assigned = Column(Boolean, default=False, comment="True: 担当者, False: 担当者でない")
     reaction = Column(String(20), default="no-reaction",comment="join: 参加, absent: 不参加, undecided: 未定, no-reaction: 無反応")
