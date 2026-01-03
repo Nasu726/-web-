@@ -8,7 +8,7 @@ from app.modules.user.models import User
 from app.modules.group import crud as group_crud
 from app.modules.user import models as user_models # ユーザー検索用
 
-from . import crud, schemas, models
+from . import crud, schemas
 
 # 1. 既存のルーター（グループ配下用）
 router = APIRouter(

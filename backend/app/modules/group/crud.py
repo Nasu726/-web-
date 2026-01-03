@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from . import models, schemas
 
 # --- 取得系 ---
