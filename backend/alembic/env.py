@@ -8,6 +8,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from alembic import context
+from app.core.config import settings
 from app.core.database import Base
 from app.modules.user import models as user_models
 from app.modules.group import models as group_models
@@ -21,20 +22,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 def get_url():
-    # 1. まず DATABASE_URL 環境変数があるか確認
-    url = os.getenv("DATABASE_URL")
-    if url:
-        return url
-    
-    # 2. なければ、個別の環境変数からMySQL接続文字列を組み立てる
-    # (docker-compose.yml で指定した変数名に合わせる)
-    user = os.getenv("MYSQL_USER", "myuser")
-    password = os.getenv("MYSQL_PASSWORD", "mypassword")
-    host = os.getenv("DB_HOST", "db")  # サービス名の "db"
-    port = os.getenv("DB_PORT", "3306")
-    db_name = os.getenv("MYSQL_DATABASE", "myapp_db")
-
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{db_name}"
+    return settings.DATABASE_URL
 
 def run_migrations_offline() -> None:
     url = get_url()
