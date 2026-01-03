@@ -1,10 +1,15 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, date
+from enum import Enum
 
 from app.modules.user.schemas import UserResponse
 
 # --- 中間テーブル (Relation) 用 ---
+class TaskFilterType(str, Enum):
+    my_related = "my_related"
+    undecided = "undecided"
+    recent_created = "recent_created"
 
 class TaskUserRelationBase(BaseModel):
     is_assigned: bool = False
