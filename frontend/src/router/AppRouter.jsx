@@ -1,7 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// ▼▼▼ 新規追加: レイアウトのインポート ▼▼▼
+// ▼▼▼ 追加 1: 作成した PrivateRoute をインポート ▼▼▼
+import PrivateRoute from '../components/PrivateRoute';
+
+// レイアウト
 import { MainLayout } from '../components/layout/MainLayout';
 import { GroupLayout } from '../components/layout/GroupLayout';
 
@@ -34,49 +37,47 @@ import GroupRequestsPage from '../pages/group/[groupId]/join_requests';
 export const AppRouter = () => {
   return (
     <Routes>
-      {/* --- 公開ルート (レイアウトなし) --- */}
+      {/* --- 公開ルート (ここは誰でもアクセス可能) --- */}
       <Route path="/signin" element={<SigninPage />} />
       <Route path="/signup" element={<SignupPage />} />
       
-      {/* デフォルトはログイン画面へリダイレクト（任意） */}
+      {/* デフォルトはログイン画面へリダイレクト */}
       <Route path="/" element={<Navigate to="/signin" replace />} />
 
-      {/* ▼▼▼ メインレイアウト適用エリア (ヘッダーのみ) ▼▼▼ */}
-      <Route element={<MainLayout />}>
-        {/* --- ユーザー専用ルート (/user) --- */}
-        {/* :userId が [userId] フォルダに対応します */}
-        <Route path="/user/:userId/profile" element={<UserProfilePage />} />
+      {/* ▼▼▼ 追加 2: ここから下を PrivateRoute で囲む ▼▼▼ */}
+      {/* これにより、内部にあるすべてのページでログインチェックが自動で行われます */}
+      <Route element={<PrivateRoute />}>
 
-        {/* --- 機能ルート (トップレベル) --- */}
-        <Route path="/calendar" element={<CalendarPage />} />
-        
-        <Route path="/instagram" element={<InstagramPage />} />
+        {/* ▼ メインレイアウト適用エリア (ヘッダーのみ) */}
+        <Route element={<MainLayout />}>
+          {/* --- ユーザー専用ルート (/user) --- */}
+          <Route path="/user/:userId/profile" element={<UserProfilePage />} />
 
-        {/* --- タスクルート (/tasks) --- */}
-        <Route path="/tasks" element={<TasksListPage />} />
-        <Route path="/tasks/new" element={<TaskCreatePage />} />
-        <Route path="/tasks/:taskId" element={<TaskDetailPage />} />
+          {/* --- 機能ルート (トップレベル) --- */}
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/instagram" element={<InstagramPage />} />
 
-        {/* --- 管理者ルート (/admin) --- */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/members" element={<AdminMembers />} />
+          {/* --- タスクルート (/tasks) --- */}
+          <Route path="/tasks" element={<TasksListPage />} />
+          <Route path="/tasks/new" element={<TaskCreatePage />} />
+          <Route path="/tasks/:taskId" element={<TaskDetailPage />} />
+
+          {/* --- 管理者ルート (/admin) --- */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/members" element={<AdminMembers />} />
+        </Route>
+
+        {/* ▼ グループレイアウト適用エリア (ヘッダー + サイドバー) */}
+        <Route element={<GroupLayout />}>
+          {/* --- グループ関連ルート (/group) --- */}
+          <Route path="/group/:groupId" element={<GroupCalendarPage />} />
+          <Route path="/group/:groupId/members" element={<GroupMembersPage />} />
+          <Route path="/group/:groupId/info" element={<GroupInfoPage />} />
+          <Route path="/group/:groupId/join_requests" element={<GroupRequestsPage />} />
+        </Route>
+
       </Route>
-
-      {/* ▼▼▼ グループレイアウト適用エリア (ヘッダー + サイドバー) ▼▼▼ */}
-      <Route element={<GroupLayout />}>
-        {/* --- グループ関連ルート (/group) --- */}
-        {/* トップ (カレンダー表示) */}
-        <Route path="/group/:groupId" element={<GroupCalendarPage />} />
-        
-        {/* メンバー管理 */}
-        <Route path="/group/:groupId/members" element={<GroupMembersPage />} />
-        
-        {/* グループ情報・設定 */}
-        <Route path="/group/:groupId/info" element={<GroupInfoPage />} />
-        
-        {/* 参加申請一覧 */}
-        <Route path="/group/:groupId/join_requests" element={<GroupRequestsPage />} />
-      </Route>
+      {/* ▲▲▲ 追加 2: PrivateRoute 終了タグ ▲▲▲ */}
 
       {/* 404 Not Found (マッチしない場合) */}
       <Route path="*" element={<div className="p-4">404: ページが見つかりません</div>} />

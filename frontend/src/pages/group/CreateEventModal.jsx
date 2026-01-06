@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+// ▼▼▼ 追加: Portalを使うために必要 ▼▼▼
+import ReactDOM from 'react-dom';
 
 const CreateEventModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -26,9 +28,15 @@ const CreateEventModal = ({ isOpen, onClose, onSubmit }) => {
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+  // ▼▼▼ 修正: モーダルの中身を変数に入れる ▼▼▼
+  const modalContent = (
+    // z-index を 50 から [9999] に変更 (ヘッダーより前に出すため)
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      
+      {/* クリックしたら閉じるための透明な背景レイヤー */}
+      <div className="absolute inset-0 -z-10" onClick={onClose}></div>
+
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 relative z-10">
         
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <h3 className="text-lg font-bold text-slate-800">新規タスク作成</h3>
@@ -118,8 +126,13 @@ const CreateEventModal = ({ isOpen, onClose, onSubmit }) => {
           </div>
         </form>
       </div>
-      <div className="absolute inset-0 -z-10" onClick={onClose}></div>
     </div>
+  );
+
+  // ▼▼▼ 修正: createPortalを使ってbody直下に描画 ▼▼▼
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 

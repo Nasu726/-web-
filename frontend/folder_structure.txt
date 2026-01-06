@@ -1,36 +1,47 @@
 frontend/
-├── .env                    # API_URL等の環境変数
-├── package.json
-├── tailwind.config.js
-├── src/
-│   ├── index.js            # エントリーポイント
-│   ├── App.js
-│   │
-│   ├── lib/
-│   │   └── api.js          # API通信クライアント (Axios設定)
-│   │
-│   ├── router/
-│   │   └── AppRouter.jsx   # ルーティング定義 (URLとページの紐付け)
-│   │
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.jsx        # 共通ヘッダー (ログアウト/プロフィール)
-│   │   │   ├── MainLayout.jsx    # メインレイアウト (ヘッダーのみ)
-│   │   │   └── GroupLayout.jsx   # グループレイアウト (ヘッダー+サイドバー)
-│   │   │
-│   │   └── ui/             # 汎用UIパーツ (ボタンなど)
-│   │
-│   ├── features/           # 機能別ロジック (auth, tasks, users...)
-│   │
-│   └── pages/
-│       ├── signin.jsx            # ログイン画面
-│       ├── signup.jsx            # 新規登録画面
-│       │
-│       ├── user/
-│       │   └── UserProfile.jsx   # プロフィール画面 (/user/:userId/profile)
-│       │
-│       ├── calendar/             # カレンダー機能 (今後実装)
-│       ├── tasks/                # タスク管理 (今後実装)
-│       ├── instagram/            # インスタグラム風機能 (今後実装)
-│       ├── admin/                # 管理者画面 (今後実装)
-│       └── group/                # グループ機能 (今後実装)
+├── .env                      # API_URL等の環境変数
+├── package.json              # 依存パッケージ管理
+├── tailwind.config.js        # Tailwind CSS設定
+└── src/
+    ├── index.js              # エントリーポイント
+    ├── App.js                # ルートコンポーネント
+    │
+    ├── assets/
+    │   └── styles/
+    │       └── global.css    # グローバルスタイル
+    │
+    ├── components/
+    │   ├── layout/
+    │   │   ├── Header.jsx       # 共通ヘッダー (ログアウト/プロフィール)
+    │   │   ├── MainLayout.jsx   # メインレイアウト
+    │   │   └── GroupLayout.jsx  # グループレイアウト
+    │   │
+    │   ├── ui/               # (汎用パーツ格納用)
+    │   └── PrivateRoute.jsx  # 認証ガードコンポーネント
+    │
+    ├── features/             # 機能別ロジック格納用ディレクトリ
+    │   ├── admin/
+    │   ├── auth/
+    │   ├── groups/
+    │   ├── instagram/
+    │   ├── tasks/
+    │   └── users/
+    │
+    ├── lib/
+    │   └── api.js            # APIクライアント設定
+    │
+    ├── pages/
+    │   ├── signin.jsx        # ログイン画面
+    │   ├── signup.jsx        # 新規登録画面
+    │   │
+    │   ├── admin/
+    │   │   ├── dashboard/
+    │   │   │   └── index.jsx # 管理者ダッシュボード
+    │   │   └── members/
+    │   │       └── index.jsx # メンバー管理
+    │   │
+    │   ├── calendar/
+    │   │   ├── index.jsx     # マイカレンダー画面 (FullCalendar)
+    │   │   └── EventModal.jsx # 予定詳細閲覧モーダル
+    │   │
+    │   ├──

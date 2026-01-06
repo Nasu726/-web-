@@ -1,4 +1,6 @@
 import React from 'react';
+// ▼▼▼ 追加: Portalを使うために必要 ▼▼▼
+import ReactDOM from 'react-dom';
 
 // 日付フォーマット用のヘルパー関数
 const formatDate = (dateStr) => {
@@ -23,10 +25,15 @@ const EventModal = ({ isOpen, onClose, event }) => {
   const location = extendedProps?.location || '未定';
   const groupName = extendedProps?.groupName || '個人予定'; // デフォルト値
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  // ▼▼▼ 修正: モーダルの内容を変数に格納 ▼▼▼
+  const modalContent = (
+    // z-index を 50 から [9999] に変更して、確実に最前面に来るようにします
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+      {/* クリックしたら閉じるための透明な背景レイヤー */}
+      <div className="absolute inset-0 -z-10" onClick={onClose}></div>
+
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 relative z-10">
         
         {/* ヘッダー部分 */}
         <div className="px-6 py-4 border-b border-slate-100 relative overflow-hidden">
@@ -34,7 +41,7 @@ const EventModal = ({ isOpen, onClose, event }) => {
           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: backgroundColor }}></div>
 
           <div className="pl-2">
-            {/* ▼▼▼ 追加: グループ名バッジ ▼▼▼ */}
+            {/* グループ名バッジ */}
             <span 
               className="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white mb-1 tracking-wide"
               style={{ backgroundColor: backgroundColor }}
@@ -101,9 +108,13 @@ const EventModal = ({ isOpen, onClose, event }) => {
           </button>
         </div>
       </div>
-      
-      <div className="absolute inset-0 -z-10" onClick={onClose}></div>
     </div>
+  );
+
+  // ▼▼▼ 修正: createPortalを使ってbody直下に描画 ▼▼▼
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 
