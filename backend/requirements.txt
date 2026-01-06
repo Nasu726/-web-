@@ -20,12 +20,12 @@ inflect==7.5.0
 Mako==1.3.10
 MarkupSafe==3.0.3
 more-itertools==10.8.0
+psycopg2-binary==2.9.11
 pyasn1==0.6.1
 pycparser==2.23
 pydantic==2.12.5
 pydantic-settings==2.12.0
 pydantic_core==2.41.5
-PyMySQL==1.1.2
 python-dotenv==1.2.1
 python-jose==3.5.0
 python-multipart==0.0.21
