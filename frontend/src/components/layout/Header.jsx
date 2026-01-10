@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import logo from '../../assets/images/logo.png';
 
 export const Header = () => {
   const [isGroupMenuOpen, setIsGroupMenuOpen] = useState(false);
@@ -50,11 +51,16 @@ export const Header = () => {
       <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="h-full px-6 max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            {/* ロゴ部分: GeekCamp -> Syncle に変更 */}
+            {/* ロゴ部分: divタグからimgタグへ変更 */}
             <Link to="/calendar" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-indigo-700 transition-colors">S</div>
-              <span className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-indigo-700 transition-colors">Syncle</span>
-            </Link>
+                {/* w-8 h-8 (32px) で表示。object-containで縦横比を維持 */}
+                <img 
+                  src={logo} 
+                  alt="Syncle Logo" 
+                  className="w-8 h-8 object-contain rounded-md transition-transform group-hover:scale-105" 
+                />
+                <span className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-indigo-700 transition-colors">Syncle</span>
+              </Link>
             
             <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
               <Link to="/calendar" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-indigo-600 transition-colors">マイカレンダー</Link>
