@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import logo from '../../assets/images/logo.png';
 
 export const Header = () => {
   const [isGroupMenuOpen, setIsGroupMenuOpen] = useState(false);
@@ -50,22 +51,28 @@ export const Header = () => {
       <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="h-full px-6 max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
+            {/* ロゴ部分: divタグからimgタグへ変更 */}
             <Link to="/calendar" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-primary-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-primary-700 transition-colors">G</div>
-              <span className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-primary-700 transition-colors">GeekCamp</span>
-            </Link>
+                {/* w-8 h-8 (32px) で表示。object-containで縦横比を維持 */}
+                <img 
+                  src={logo} 
+                  alt="Syncle Logo" 
+                  className="w-8 h-8 object-contain rounded-md transition-transform group-hover:scale-105" 
+                />
+                <span className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-indigo-700 transition-colors">Syncle</span>
+              </Link>
             
             <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
-              <Link to="/calendar" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-primary-600 transition-colors">マイカレンダー</Link>
+              <Link to="/calendar" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-indigo-600 transition-colors">マイカレンダー</Link>
               
               {/* ▼▼▼ 追加: 自分のタスクへのリンク ▼▼▼ */}
-              <Link to="/tasks" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-primary-600 transition-colors">自分のタスク</Link>
+              <Link to="/tasks" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-indigo-600 transition-colors">自分のタスク</Link>
 
               {/* グループメニュー */}
               <div className="relative">
                 <button 
                   onClick={() => setIsGroupMenuOpen(!isGroupMenuOpen)} 
-                  className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${isGroupMenuOpen ? 'bg-slate-100 text-primary-700' : 'hover:bg-slate-50 hover:text-primary-600'}`}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${isGroupMenuOpen ? 'bg-slate-100 text-indigo-700' : 'hover:bg-slate-50 hover:text-indigo-600'}`}
                 >
                   参加グループ <span className="text-[10px] opacity-60">▼</span>
                 </button>
@@ -126,12 +133,12 @@ export const Header = () => {
                   </>
                 )}
               </div>
-              <Link to="/instagram" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-primary-600 transition-colors">画像生成</Link>
+              <Link to="/instagram" className="px-3 py-2 rounded-md hover:bg-slate-50 hover:text-indigo-600 transition-colors">画像生成</Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
-            <Link to="/user/me/profile" className="text-sm font-medium text-slate-600 hover:text-primary-600 flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-slate-50">
+            <Link to="/user/me/profile" className="text-sm font-medium text-slate-600 hover:text-indigo-600 flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-slate-50">
               <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">U</div>
               <span>Profile</span>
             </Link>
