@@ -11,7 +11,6 @@ const GroupMembersPage = () => {
   const [loading, setLoading] = useState(true);
   
   const [isAdmin, setIsAdmin] = useState(false);
-  // ▼ 追加: 表示制御のために自分のユーザー情報を保持する
   const [currentUser, setCurrentUser] = useState(null);
 
   // データ取得
@@ -24,7 +23,6 @@ const GroupMembersPage = () => {
       ]);
 
       const myUser = meRes.data;
-      // ▼ 追加: ステートに保存
       setCurrentUser(myUser);
 
       const membersData = membersRes.data;
@@ -80,6 +78,63 @@ const GroupMembersPage = () => {
     }
   };
 
+  // ▼▼▼ 修正: あらゆる可能性を考慮した「全部入り」リクエスト送信 ▼▼▼
+  const handleRoleUpdate = async (targetUserId, isCurrentlyAdmin) => {
+    if (!targetUserId) {
+      alert("エラー: ユーザーIDが不明です");
+      return;
+    }
+
+    const actionName = isCurrentlyAdmin ? '解除' : '付与';
+    if (!window.confirm(`このユーザーの管理者権限を${actionName}してよろしいですか？`)) return;
+
+    try {
+      // 1. パスパラメータ用のURL (API定義準拠)
+      const url = `/groups/${groupId}/members/${targetUserId}`;
+
+      // 2. Bodyデータ (accepted: true を明示)
+      //念のため body にも target_identifier を含めておく
+      const payload = {
+        accepted: true,
+        is_representative: !isCurrentlyAdmin,
+        target_identifier: targetUserId 
+      };
+
+      // 3. クエリパラメータ (エラー回避用)
+      // "query.target_identifier: Field required" エラーへの対策として、クエリにもIDを付与する
+      const config = {
+        params: {
+          target_identifier: targetUserId
+        }
+      };
+
+      console.log(`Sending PUT to ${url} with params:`, config.params, "body:", payload);
+
+      await api.put(url, payload, config);
+      
+      alert(`管理者権限を${actionName}しました`);
+      fetchData(); 
+    } catch (error) {
+      console.error("Role update failed:", error);
+      
+      let message = '権限の変更に失敗しました';
+      if (error.response && error.response.data) {
+        const { detail } = error.response.data;
+        if (typeof detail === 'string') {
+          message = detail;
+        } else if (Array.isArray(detail)) {
+          message = "入力形式エラー:\n" + detail.map(d => {
+            const field = d.loc ? d.loc.join('.') : 'field';
+            return `- ${field}: ${d.msg}`;
+          }).join('\n');
+        } else if (typeof detail === 'object') {
+          message = JSON.stringify(detail, null, 2);
+        }
+      }
+      alert(message);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       {/* タブヘッダー */}
@@ -130,7 +185,6 @@ const GroupMembersPage = () => {
                           <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded border border-indigo-200">管理者</span>
                         )}
                       </p>
-                      {/* ▼▼▼ 修正: 管理者または本人以外にはメールアドレスを隠す ▼▼▼ */}
                       {(isAdmin || (currentUser && currentUser.user_id === member.user_id)) && (
                         <p className="text-xs text-slate-500">{member.email}</p>
                       )}
@@ -139,6 +193,7 @@ const GroupMembersPage = () => {
 
                   {/* アクションボタンエリア */}
                   <div>
+                    {/* 承認待ちタブ (管理者のみ) */}
                     {activeTab === 'requests' && isAdmin && (
                       <div className="flex gap-2">
                         <button
@@ -153,6 +208,27 @@ const GroupMembersPage = () => {
                         >
                           拒否
                         </button>
+                      </div>
+                    )}
+
+                    {/* メンバー一覧タブ (管理者のみ & 自分以外) */}
+                    {activeTab === 'members' && isAdmin && currentUser && member.user_id !== currentUser.user_id && (
+                      <div className="flex gap-2">
+                        {member.is_representative ? (
+                          <button
+                            onClick={() => handleRoleUpdate(member.user_id, true)}
+                            className="px-3 py-1.5 border border-red-200 text-red-600 text-xs font-bold rounded shadow-sm hover:bg-red-50"
+                          >
+                            管理者解除
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRoleUpdate(member.user_id, false)}
+                            className="px-3 py-1.5 border border-indigo-200 text-indigo-600 text-xs font-bold rounded shadow-sm hover:bg-indigo-50"
+                          >
+                            管理者に設定
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
