@@ -1,3 +1,5 @@
+import sys
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +13,8 @@ from app.modules.group.api import router as group_router
 from app.modules.task.api import router as group_task_router
 from app.modules.task.api import me_router as my_task_router
 from app.modules.chat.api import router as chat_router
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
