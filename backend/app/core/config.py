@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL(self) -> str:
         # Vercel等の環境変数からURLを取得
-        url = os.getenv("POSTGRES_URL") 
+        url = os.getenv("DATABASE_URL") 
         
         # ローカル開発などで .env の値を使う場合のフォールバック
         if not url:
