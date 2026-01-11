@@ -32,6 +32,7 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",  # Reactのデフォルトポート
     "http://localhost:5173",  # Viteを使用している場合のデフォルトポート
+    "https://syncle-five.vercel.app"
 ]
 
 app.add_middleware(
