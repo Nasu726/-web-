@@ -29,7 +29,6 @@ app = FastAPI(
     description="React + FastAPI + PostgreSQL Application",
     version="0.1.0",
     root_path="/api",
-    docs_url="/docs",
 )
 
 # --- CORS (Cross-Origin Resource Sharing) の設定 ---
