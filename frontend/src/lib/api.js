@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // バックエンドのURL (環境変数から読み込むか、なければlocalhost:8000)
 // Reactでは環境変数は REACT_APP_ から始める必要があります
-const API_URL = '/api';
+const API_URL = '/';
 
 // Axiosのインスタンスを作成
 const api = axios.create({
